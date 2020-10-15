@@ -40,4 +40,79 @@ router.get('/voter/:id', (req, res) => {
     });
 });
 
+// POST a voter 
+router.post('/voter', ({ body }, res) => {
+    // Checks for valid inputs
+    const errors = inputCheck(body, 'first_name', 'last_name', 'email');
+
+    if (errors) {
+        res.status(400).json({ error: errors });
+        return;
+    }
+
+    // Makes the request
+    const sql = `INSERT INTO voters (first_name, last_name, email)
+                VALUES (?, ?, ?)`;
+    const params = [body.first_name, body.last_name, body.email];
+
+    db.run(sql, params, function(err, data) {
+        if (err) {
+            res.status(400).json({ error: err.message });
+            return;
+        }
+        
+        res.json({
+            message: 'success',
+            data: body,
+            id: this.lastID
+        });
+    });
+});
+
+// PUT a voter's updated email into the db
+router.put('/voter/:id', (req, res) => {
+    // Checks for valid email
+    const errors = inputCheck(req.body, 'email');
+
+    if (errors) {
+        res.status(400).json({ error: errors });
+        return;
+    }
+
+    // Makes the request
+    const sql = `UPDATE voters SET email = ?
+                WHERE id = ?`;
+    const params = [req.body.email, req.params.id];
+
+    db.run(sql, params, function(err, data) {
+        if (err) {
+            res.status(400).json({ error: err.message });
+            return;
+        }
+
+        res.json({
+            message: 'success',
+            data: req.body,
+            changes: this.changes
+        });
+    });
+});
+
+// DELETE a voter
+router.delete('/voter/:id', (req, res) => {
+    const sql = `DELETE FROM voters WHERE id = ?`;
+
+    db.run(sql, req.params.id, function(err, results) {
+        if (err) {
+            res.status(400).json({ error: err.message });
+            return;
+        }
+
+        res.json({
+            message: 'successfully deleted',
+            changes: this.changes
+        });
+    });
+});
+
 module.exports = router;
