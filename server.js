@@ -4,9 +4,11 @@ const express = require('express');
 const PORT = process.env.PORT || 3001;
 const app = express();
 
+
 // Express.js middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
 
 // Connect to database
 const db = new sqlite3.Database('./db/election.db', err => {
@@ -16,6 +18,7 @@ const db = new sqlite3.Database('./db/election.db', err => {
 
     console.log('Connected to the election database.');
 });
+
 
 // ========= CANDIDATES ==========
 
@@ -187,6 +190,7 @@ app.delete('/api/party/:id', (req, res) => {
         });
     });
 });
+
 
 // Default response for any other request(Not Found) Catch all
 app.use((req, res) => {
